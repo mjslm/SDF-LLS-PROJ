@@ -1,11 +1,8 @@
 package gui;
 
-import users.StudentUser;
-
 import javax.swing.*;
-import java.awt.*;
-import java.awt.event.FocusAdapter;
-import java.awt.event.FocusEvent;
+import database.Database;
+import models.Student;
 
 public class StudentLoginGUI extends JFrame {
     public StudentLoginGUI() {
@@ -42,7 +39,19 @@ public class StudentLoginGUI extends JFrame {
         add(idField);
         add(loginBtn);
 
-        loginBtn.addActionListener(e -> new StudentUser(idField.getText()).login());
+        loginBtn.addActionListener(e -> {
+            // Trim any leading/trailing spaces from the entered ID
+            String enteredId = idField.getText().trim();
+
+            // Call getStudent method from Database to check if student exists
+            Student s = Database.getInstance().getStudent(enteredId);
+            if (s != null) {
+                JOptionPane.showMessageDialog(null, "Welcome " + s.getName() + "!");
+            } else {
+                JOptionPane.showMessageDialog(null, "Student not found!");
+            }
+        });
+
         setVisible(true);
     }
 }

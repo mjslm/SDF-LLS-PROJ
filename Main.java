@@ -1,5 +1,4 @@
 import gui.MainMenuGUI;
-
 import javax.swing.*;
 
 public class Main {

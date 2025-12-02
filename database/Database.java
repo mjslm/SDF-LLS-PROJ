@@ -1,19 +1,14 @@
 package database;
 
 import models.Student;
-
-import javax.swing.*;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
+import javax.swing.JOptionPane;
 
 public class Database {
     private static Database instance;
-    private final java.util.List<String> loginLogs = new ArrayList<>();
-    private final Map<String, Student> students = new HashMap<>();
+    private final List<String> loginLogs = new ArrayList<>();
     private final String adminId = "ADMIN123";
 
     private Database() {}
@@ -23,25 +18,66 @@ public class Database {
         return instance;
     }
 
-    public void addStudent(Student s) { students.put(s.getId(), s); }
-    public Student getStudent(String id) { return students.get(id); }
-    public void logLogin(String info) { loginLogs.add(info); }
-    public java.util.List<String> getLogs() { return loginLogs; }
-
     public String getAdminId() { return adminId; }
 
+    public void addStudent(Student s) {
+    System.out.println("Adding student: " + s.getId() + " - " + s.getName());  // Debugging line
+    try (Connection conn = DBUtil.getConnection()) {
+        String sql = "INSERT INTO students (student_id, student_name, course, year_level) VALUES (?, ?, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, s.getId().trim());
+            ps.setString(2, s.getName().trim());
+            ps.setString(3, s.getCourse().trim());
+            ps.setString(4, s.getYearLevel().trim());
+            int rowsAffected = ps.executeUpdate();
+            System.out.println("Rows affected: " + rowsAffected);  // Debugging line
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+}
+
+
+    public Student getStudent(String id) {
+    System.out.println("Looking for student with ID: " + id);  // Debugging line
+    try (Connection conn = DBUtil.getConnection()) {
+        String sql = "SELECT * FROM students WHERE student_id = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, id.trim());  // Ensure that the ID is correctly trimmed
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Student(
+                            rs.getString("student_id"),
+                            rs.getString("student_name"),
+                            rs.getString("course"),
+                            rs.getString("year_level")
+                    );
+                }
+            }
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+    return null;
+}
+
+
+    // Logging methods
+    public void logLogin(String log) { loginLogs.add(log); }
+    public List<String> getLogs() { return new ArrayList<>(loginLogs); }
+
     public void exportAnalyticsTxt() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter("analytics.txt", true))) {
+        try (java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.FileWriter("analytics.txt", true))) {
             writer.println("=== Library Login Analytics ===");
             for (String log : loginLogs) writer.println(log);
             writer.println("Total Logins: " + loginLogs.size());
             writer.println("===============================\n");
             JOptionPane.showMessageDialog(null, "Analytics exported to analytics.txt");
-        } catch (IOException e) { e.printStackTrace(); }
+        } catch (java.io.IOException e) { e.printStackTrace(); }
     }
 
     public void exportAnalyticsCsv() {
-        try (PrintWriter writer = new PrintWriter(new FileWriter("analytics.csv", true))) {
+        try (java.io.PrintWriter writer = new java.io.FileWriter("analytics.csv", true)) {
             writer.println("Name,Course,Year,Login Time,Semester");
             for (String log : loginLogs) {
                 String[] parts = log.split("\\|");
@@ -55,6 +91,6 @@ public class Database {
                 }
             }
             JOptionPane.showMessageDialog(null, "Analytics exported to analytics.csv");
-        } catch (IOException e) { e.printStackTrace(); }
+        } catch (java.io.IOException e) { e.printStackTrace(); }
     }
 }

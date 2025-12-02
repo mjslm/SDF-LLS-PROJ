@@ -2,7 +2,6 @@ package users;
 
 import database.Database;
 import gui.AdminDashboardGUI;
-
 import javax.swing.*;
 
 public class AdminUser extends User {

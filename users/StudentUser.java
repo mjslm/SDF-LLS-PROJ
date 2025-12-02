@@ -21,6 +21,7 @@ public class StudentUser extends User {
             db.logLogin(log);
             JOptionPane.showMessageDialog(null, "Welcome " + s.getName() + "!\nLogged at: " + time);
         } else {
+            System.out.println("Student not found!"); // Debugging line
             JOptionPane.showMessageDialog(null, "Student not found!");
         }
     }
