@@ -1,11 +1,10 @@
 package gui;
 
-import users.AdminUser;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import users.AdminUser;
 
 public class AdminLoginGUI extends JFrame {
     public AdminLoginGUI() {

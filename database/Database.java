@@ -1,14 +1,13 @@
 package database;
 
 import models.Student;
+import javax.swing.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JOptionPane;
 
 public class Database {
     private static Database instance;
-    private final List<String> loginLogs = new ArrayList<>();
     private final String adminId = "ADMIN123";
 
     private Database() {}
@@ -20,77 +19,108 @@ public class Database {
 
     public String getAdminId() { return adminId; }
 
+    // ================= Add Student =================
     public void addStudent(Student s) {
-    System.out.println("Adding student: " + s.getId() + " - " + s.getName());  // Debugging line
-    try (Connection conn = DBUtil.getConnection()) {
-        String sql = "INSERT INTO students (student_id, student_name, course, year_level) VALUES (?, ?, ?, ?)";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = DBUtil.getConnection()) {
+
+            String sql = "INSERT INTO students (student_id, student_name, course, year_level) VALUES (?, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+
             ps.setString(1, s.getId().trim());
             ps.setString(2, s.getName().trim());
             ps.setString(3, s.getCourse().trim());
             ps.setString(4, s.getYearLevel().trim());
-            int rowsAffected = ps.executeUpdate();
-            System.out.println("Rows affected: " + rowsAffected);  // Debugging line
+
+            int rows = ps.executeUpdate();
+            System.out.println("Student Inserted: " + rows);
+
+        } catch (SQLException e) {
+            System.out.println("❌ ERROR INSERTING STUDENT!");
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(null, "Error saving student.");
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
     }
-}
 
-
+    // ================= Get Student =================
     public Student getStudent(String id) {
-    System.out.println("Looking for student with ID: " + id);  // Debugging line
-    try (Connection conn = DBUtil.getConnection()) {
-        String sql = "SELECT * FROM students WHERE student_id = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, id.trim());  // Ensure that the ID is correctly trimmed
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return new Student(
-                            rs.getString("student_id"),
-                            rs.getString("student_name"),
-                            rs.getString("course"),
-                            rs.getString("year_level")
-                    );
-                }
+        try (Connection conn = DBUtil.getConnection()) {
+
+            String sql = "SELECT * FROM students WHERE student_id = ?";
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setString(1, id.trim());
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return new Student(
+                        rs.getString("student_id"),
+                        rs.getString("student_name"),
+                        rs.getString("course"),
+                        rs.getString("year_level")
+                );
             }
+
+        } catch (SQLException e) {
+            System.out.println("❌ ERROR FETCHING STUDENT!");
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-    }
-    return null;
-}
-
-
-    // Logging methods
-    public void logLogin(String log) { loginLogs.add(log); }
-    public List<String> getLogs() { return new ArrayList<>(loginLogs); }
-
-    public void exportAnalyticsTxt() {
-        try (java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.FileWriter("analytics.txt", true))) {
-            writer.println("=== Library Login Analytics ===");
-            for (String log : loginLogs) writer.println(log);
-            writer.println("Total Logins: " + loginLogs.size());
-            writer.println("===============================\n");
-            JOptionPane.showMessageDialog(null, "Analytics exported to analytics.txt");
-        } catch (java.io.IOException e) { e.printStackTrace(); }
+        return null;
     }
 
-    public void exportAnalyticsCsv() {
-        try (java.io.PrintWriter writer = new java.io.FileWriter("analytics.csv", true)) {
-            writer.println("Name,Course,Year,Login Time,Semester");
-            for (String log : loginLogs) {
-                String[] parts = log.split("\\|");
-                if(parts.length == 5) {
-                    String name = parts[0].replace("Student:", "").trim();
-                    String course = parts[1].replace("Course:", "").trim();
-                    String year = parts[2].replace("Year:", "").trim();
-                    String time = parts[3].replace("Logged in at", "").trim();
-                    String semester = parts[4].replace("Semester:", "").trim();
-                    writer.printf("\"%s\",\"%s\",\"%s\",\"%s\",\"%s\"%n", name, course, year, time, semester);
-                }
+    // ================= Log Login =================
+    public void logLogin(String studentId, String studentName, String course, String yearLevel, String loginTime) {
+        try (Connection conn = DBUtil.getConnection()) {
+
+            String sql = "INSERT INTO login_logs (student_id, student_name, course, year_level, login_datetime, semester) VALUES (?, ?, ?, ?, ?, ?)";
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ps.setString(1, studentId);
+            ps.setString(2, studentName);
+            ps.setString(3, course);
+            ps.setString(4, yearLevel);
+            ps.setString(5, loginTime);
+            ps.setString(6, "1st");  // FIXED
+
+            int rows = ps.executeUpdate();
+            System.out.println("Login Logged: " + rows);
+
+        } catch (SQLException e) {
+            System.out.println("❌ ERROR INSERTING LOGIN LOG!");
+            e.printStackTrace();
+        }
+    }
+
+    // ================= Read Logs (Admin Dashboard) =================
+    public List<String> getLogs() {
+        List<String> logs = new ArrayList<>();
+
+        try (Connection conn = DBUtil.getConnection()) {
+
+            String sql = "SELECT * FROM login_logs ORDER BY log_id DESC";
+            PreparedStatement ps = conn.prepareStatement(sql);
+
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                String log = "ID: " + rs.getInt("log_id")
+                        + " | Student: " + rs.getString("student_name")
+                        + " | Course: " + rs.getString("course")
+                        + " | Year: " + rs.getString("year_level")
+                        + " | Time: " + rs.getString("login_datetime")
+                        + " | Semester: " + rs.getString("semester");
+
+                logs.add(log);
             }
-            JOptionPane.showMessageDialog(null, "Analytics exported to analytics.csv");
-        } catch (java.io.IOException e) { e.printStackTrace(); }
+
+        } catch (SQLException e) {
+            System.out.println("❌ ERROR READING LOGS!");
+            e.printStackTrace();
+        }
+
+        return logs;
     }
+
+    // (Optional export methods can stay empty for now)
+    public void exportAnalyticsTxt() {}
+    public void exportAnalyticsCsv() {}
 }

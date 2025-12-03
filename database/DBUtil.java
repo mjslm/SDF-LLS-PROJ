@@ -5,16 +5,16 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DBUtil {
-    private static final String URL = "jdbc:mysql://localhost:3306/library_login_system_database"; // Update with your database name
-    private static final String USER = "root";  // Your MySQL username
-    private static final String PASSWORD = ""; // Your MySQL password
+    private static final String URL = "jdbc:mysql://localhost:3306/library_login_system_database";
+    private static final String USER = "root";
+    private static final String PASSWORD = "";
 
     static {
         try {
-            Class.forName("com.mysql.cj.jdbc.Driver"); // Load MySQL JDBC driver
-            System.out.println("MySQL Driver loaded successfully.");  // Debugging line
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            System.out.println("MySQL JDBC Driver loaded successfully.");
         } catch (ClassNotFoundException e) {
-            System.out.println("MySQL Driver not found.");
+            System.out.println("❌ JDBC DRIVER NOT FOUND!");
             e.printStackTrace();
         }
     }

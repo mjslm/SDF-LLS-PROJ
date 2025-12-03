@@ -1,12 +1,11 @@
 package gui;
 
-import models.Student;
-import database.Database;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
+import database.Database;
+import models.Student;
 
 public class StudentRegisterGUI extends JFrame {
     public StudentRegisterGUI() {
@@ -68,9 +67,19 @@ public class StudentRegisterGUI extends JFrame {
         add(registerBtn);
 
         registerBtn.addActionListener(e -> {
-            Database db = Database.getInstance();
-            db.addStudent(new Student(idField.getText(), nameField.getText(),
-                    courseField.getText(), yearField.getText()));
+            String id = idField.getText().trim();
+            String name = nameField.getText().trim();
+            String course = courseField.getText().trim();
+            String year = yearField.getText().trim();
+
+            if(id.isEmpty() || name.isEmpty() || course.isEmpty() || year.isEmpty() ||
+               id.startsWith("e.g.") || name.startsWith("e.g.") || course.startsWith("e.g.") || year.startsWith("e.g.")) {
+                JOptionPane.showMessageDialog(null, "Please fill in all fields!");
+                return;
+            }
+
+            Student s = new Student(id, name, course, year);
+            Database.getInstance().addStudent(s);
             JOptionPane.showMessageDialog(null, "Student Registered Successfully!");
             dispose();
         });
