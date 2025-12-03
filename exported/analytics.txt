@@ -1,0 +1,6 @@
+ID: 1 | Student: Luffy D. Monkey | Course: BSIT | Year: 2 | Semester: 1st | Logged at: 2023-12-03 14:30:00
+ID: 2 | Student: Zita Miro M. Valerio | Course: BSIT | Year: 2 | Semester: 1st | Logged at: 2025-12-03 15:01:24
+ID: 3 | Student: Zita Miro M. Valerio | Course: BSIT | Year: 2 | Semester: 1st | Logged at: 2025-12-03 15:03:08
+ID: 4 | Student: Zita Miro M. Valerio | Course: BSIT | Year: 2 | Semester: 1st | Logged at: 2025-12-03 15:12:32
+ID: 5 | Student: Mark Cyrell D. Quinio | Course: BSIT | Year: 3 | Semester: null | Logged at: 2025-12-03 15:17:31
+ID: 6 | Student: Ichigo Q. Kurosaki | Course: BSCrim | Year: 3 | Semester: 1st | Logged at: 2025-12-03 15:28:10
