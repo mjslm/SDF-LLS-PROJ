@@ -127,6 +127,48 @@ ALTER TABLE `admin_info`
 --
 ALTER TABLE `login_logs`
   MODIFY `log_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
+
+-- ========================================
+-- NEW ANALYTICS TABLES
+-- ========================================
+
+--
+-- Table structure for table `analytics_by_department`
+--
+CREATE TABLE IF NOT EXISTS `analytics_by_department` (
+  `analytics_id` int(11) NOT NULL AUTO_INCREMENT,
+  `department` varchar(100) NOT NULL,
+  `login_count` int(11) DEFAULT 0,
+  `last_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`analytics_id`),
+  UNIQUE KEY `unique_department` (`department`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for table `analytics_by_semester`
+--
+CREATE TABLE IF NOT EXISTS `analytics_by_semester` (
+  `analytics_id` int(11) NOT NULL AUTO_INCREMENT,
+  `semester` varchar(50) NOT NULL,
+  `login_count` int(11) DEFAULT 0,
+  `last_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`analytics_id`),
+  UNIQUE KEY `unique_semester` (`semester`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Table structure for table `analytics_by_dept_semester`
+--
+CREATE TABLE IF NOT EXISTS `analytics_by_dept_semester` (
+  `analytics_id` int(11) NOT NULL AUTO_INCREMENT,
+  `department` varchar(100) NOT NULL,
+  `semester` varchar(50) NOT NULL,
+  `login_count` int(11) DEFAULT 0,
+  `last_updated` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`analytics_id`),
+  UNIQUE KEY `unique_dept_semester` (`department`, `semester`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

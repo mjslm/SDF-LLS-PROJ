@@ -104,7 +104,4 @@ public class AdminDashboardGUI extends JFrame {
         }
         refreshLogs();
     }
-        }
-        refreshLogs();
-    }
 }
