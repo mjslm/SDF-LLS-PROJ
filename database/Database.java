@@ -110,6 +110,67 @@ public class Database {
         return logs;
     }
 
+    // ================= Get Login Count by Department =================
+    public List<String> getLoginCountByDepartment() {
+        List<String> stats = new ArrayList<>();
+        try (Connection conn = DBUtil.getConnection()) {
+            String sql = "SELECT course, COUNT(*) as login_count FROM login_logs GROUP BY course ORDER BY login_count DESC";
+            try (PreparedStatement ps = conn.prepareStatement(sql);
+                 ResultSet rs = ps.executeQuery()) {
+                stats.add("========== LOGIN COUNT BY DEPARTMENT ==========");
+                while (rs.next()) {
+                    String department = rs.getString("course");
+                    int count = rs.getInt("login_count");
+                    stats.add("Department: " + department + " | Total Logins: " + count);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return stats;
+    }
+
+    // ================= Get Login Count by Semester =================
+    public List<String> getLoginCountBySemester() {
+        List<String> stats = new ArrayList<>();
+        try (Connection conn = DBUtil.getConnection()) {
+            String sql = "SELECT semester, COUNT(*) as login_count FROM login_logs GROUP BY semester ORDER BY login_count DESC";
+            try (PreparedStatement ps = conn.prepareStatement(sql);
+                 ResultSet rs = ps.executeQuery()) {
+                stats.add("========== LOGIN COUNT BY SEMESTER ==========");
+                while (rs.next()) {
+                    String semester = rs.getString("semester");
+                    int count = rs.getInt("login_count");
+                    stats.add("Semester: " + semester + " | Total Logins: " + count);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return stats;
+    }
+
+    // ================= Get Login Count by Department and Semester =================
+    public List<String> getLoginCountByDepartmentAndSemester() {
+        List<String> stats = new ArrayList<>();
+        try (Connection conn = DBUtil.getConnection()) {
+            String sql = "SELECT course, semester, COUNT(*) as login_count FROM login_logs GROUP BY course, semester ORDER BY course ASC, login_count DESC";
+            try (PreparedStatement ps = conn.prepareStatement(sql);
+                 ResultSet rs = ps.executeQuery()) {
+                stats.add("========== LOGIN COUNT BY DEPARTMENT & SEMESTER ==========");
+                while (rs.next()) {
+                    String department = rs.getString("course");
+                    String semester = rs.getString("semester");
+                    int count = rs.getInt("login_count");
+                    stats.add("Dept: " + department + " | Semester: " + semester + " | Logins: " + count);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return stats;
+    }
+
     // ================= Export TXT =================
     public void exportAnalyticsTxt() {
         try {

@@ -16,7 +16,7 @@ public class AdminDashboardGUI extends JFrame {
 
     public AdminDashboardGUI() {
         setTitle("Admin Dashboard");
-        setSize(600, 450);
+        setSize(800, 550);
         setLocationRelativeTo(null);
         setLayout(new BorderLayout());
         setResizable(true);
@@ -27,7 +27,16 @@ public class AdminDashboardGUI extends JFrame {
         JPanel topPanel = new JPanel();
         topPanel.setLayout(new FlowLayout());
 
-        sortBox = new JComboBox<>(new String[]{"Newest First", "Oldest First", "A - Z", "Z - A"});
+        sortBox = new JComboBox<>(new String[]{
+            "All Logs", 
+            "Newest First", 
+            "Oldest First", 
+            "A - Z", 
+            "Z - A",
+            "By Department",
+            "By Semester",
+            "By Department & Semester"
+        });
         JButton sortBtn = new JButton("Sort");
         sortBtn.setBackground(new Color(70, 130, 180));
         sortBtn.setForeground(Color.WHITE);
@@ -51,7 +60,7 @@ public class AdminDashboardGUI extends JFrame {
 
         logsArea = new JTextArea();
         logsArea.setEditable(false);
-        logsArea.setFont(new Font("Consolas", Font.PLAIN, 13));
+        logsArea.setFont(new Font("Consolas", Font.PLAIN, 12));
         refreshLogs();
 
         add(topPanel, BorderLayout.NORTH);
@@ -71,13 +80,30 @@ public class AdminDashboardGUI extends JFrame {
 
     private void applySort() {
         String option = (String) sortBox.getSelectedItem();
-        logs = new ArrayList<>(Database.getInstance().getLogs());
+        Database db = Database.getInstance();
+        logs = new ArrayList<>();
 
         switch(option) {
-            case "Newest First" -> Collections.reverse(logs);
-            case "Oldest First" -> {}
-            case "A - Z" -> Collections.sort(logs);
-            case "Z - A" -> logs.sort(Collections.reverseOrder());
+            case "All Logs" -> logs.addAll(db.getLogs());
+            case "Newest First" -> {
+                logs.addAll(db.getLogs());
+                Collections.reverse(logs);
+            }
+            case "Oldest First" -> logs.addAll(db.getLogs());
+            case "A - Z" -> {
+                logs.addAll(db.getLogs());
+                Collections.sort(logs);
+            }
+            case "Z - A" -> {
+                logs.addAll(db.getLogs());
+                logs.sort(Collections.reverseOrder());
+            }
+            case "By Department" -> logs.addAll(db.getLoginCountByDepartment());
+            case "By Semester" -> logs.addAll(db.getLoginCountBySemester());
+            case "By Department & Semester" -> logs.addAll(db.getLoginCountByDepartmentAndSemester());
+        }
+        refreshLogs();
+    }
         }
         refreshLogs();
     }
